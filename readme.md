@@ -1,0 +1,1 @@
+Simulator in this version does not specify user identity.
