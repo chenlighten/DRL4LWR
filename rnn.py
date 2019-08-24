@@ -14,6 +14,9 @@ class Rnn():
         self.item_embedding = item_embedding
         self.max_item_num = item_embedding.shape[0]
 
+        self.make_graph()
+        self.train()
+
         self.sess = tf.Session()
         self.ses.run(tf.global_variables_initializer())
 

@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+def norm(x):
+    return (np.sum(x**2))**0.5
+
 def mf_embedding(ratings, user_num, item_num, config):
     np.random.shuffle(ratings)
     emb_train_ratio = float(config['EMB']['EMB_TRAIN_RATIO'])
@@ -42,5 +45,3 @@ def mf_embedding(ratings, user_num, item_num, config):
             rmse = sess.run(rmse, {user_id: data_test[:, 0], item_id: data_test[:, 1], real_rating: data[:, 2]})
             print('mf train step %d, rmse %.4f'%(i, rmse))
         return np.array(sess.run(item_embedding))   
-    
-    

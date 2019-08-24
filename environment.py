@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 from runtime import *
+from rnn import *
 
 class Env():
     def __init__(self, config, usage):
@@ -24,6 +25,9 @@ class Env():
         else:
             raise RuntimeError('No such usage as %s'%usage)
 
+        self.action_dim = int(config['EMB']['EMB_SIZE'])
+        self.state_dim = int(config['RNN']['OUTPUT_DIM'])
+
         self.r_matrix = coo_matrix((self.ratings[:, 2], (self.ratings[:, 0].astype(int), self.ratings[:, 1].astype(int)))).toarray()
         self.t_matrix = coo_matrix((self.ratings[:, 3], (self.ratings[:, 0].astype(int), self.ratings[:, 1].astype(int)))).toarray()
 
@@ -31,12 +35,14 @@ class Env():
         self.seq_len = int(config['ENV']['SEQ_LEN'])
 
         self.item_embeddings = mf_embedding(self.ratings, self.user_num, self.item_num)
+        self.rnn = Rnn(self.ratings, self.item_embeddings, config)
+        self.construct_predictor()
 
     def reID(self):
         user2ID = {}
         item2ID = {}
         user_count = 0
-        item_count = []
+        item_count = 0
         for n in range(len(self.ratings)):
             u = self.ratings[n][0]
             i = self.ratings[n][1]
@@ -51,10 +57,28 @@ class Env():
         return user_count, item_count
 
     def construct_predictor(self):
-        pred_dict = {}
+        self.pred_dict = {}
+        for n in range(len(self.ratings)):
+            a = self.item_embeddings[self.ratings[n][1]]
+            hist = []
+            m = n - 1
+            while self.ratings[m][0] == self.ratings[n][0] and n - m <= self.seq_len:
+                hist.append(self.ratings[m][1])
+            hist.reverse()
+            if len(hist) != 0:
+                s = self.rnn.get_state(hist)
+            else:
+                s = np.zeros([self.state_dim])
+            r = self.ratings[n][2]
+            if r not in pred_dict.keys():
+                pred_dict[r] = [s/norm(s), a/norm(a), 1]
+            else:
+                pred_dict[r][0] += s/norm(s)
+                pred_dict[r][1] += a/norm(a)
+                pred_dict[r][2] += 1
+            
+    def get_reward(self, s, a):
         
-        
-
         
 
         
