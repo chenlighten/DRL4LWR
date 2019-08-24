@@ -34,7 +34,7 @@ class Env():
         self.alpha = float(config['ENV']['ALPHA'])
         self.seq_len = int(config['ENV']['SEQ_LEN'])
 
-        self.item_embeddings = mf_embedding(self.ratings, self.user_num, self.item_num)
+        self.item_embeddings = mf_embedding(self.ratings, self.user_num, self.item_num, config)
         self.rnn = Rnn(self.ratings, self.item_embeddings, config)
         self.construct_predictor()
 
@@ -78,7 +78,15 @@ class Env():
                 pred_dict[r][2] += 1
             
     def get_reward(self, s, a):
-        
-        
+        weight = []
+        for i in range(20):
+            r = 0.5 + i*0.5
+            weight.append(self.pred_dict[r][2]*(self.alpha*(np.dot(s/norm(s), self.pred_dict[r][0]) + \
+                (1 - self.alpha)*(np.dot(a/norm(a), self.pred_dict[r][1])))))
+        weight = np.array(weight)
+        weight_sum = np.sum(weight)
+        probs = weight/weight_sum
+        return np.random.choice([0.5 + 0.5*i for i in range(20)], probs)
+
 
         
