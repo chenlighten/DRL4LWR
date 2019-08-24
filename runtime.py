@@ -30,18 +30,18 @@ def mf_embedding(ratings, user_num, item_num, config):
     
     l2_factor = float(config['EMB']['L2_FACTOR'])
     target_loss = tf.reduce_mean(0.5*tf.square(pred_rating - real_rating))
-    loss = target_loss + l2_factor*tf.reduce_mean(tf.square(user_embedding) + tf.square(item_embedding))
+    loss = target_loss + l2_factor*tf.reduce_mean(tf.square(user_emb) + tf.square(item_emb))
     train_op = tf.train.AdamOptimizer().minimize(loss)
 
-    rmse = tf.sqrt(tf.reduce_mean(pred_rating - real_rating))
+    rmse = tf.reduce_mean((pred_rating - real_rating)**2)**0.5
 
     max_step = int(config['EMB']['EMB_TRAIN_STEP'])
-    with tf.Session as sess:
+    with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         for i in range(max_step):
             np.random.shuffle(data_train)
-            np.ramdom.shuffle(data_test)
-            sess.run(train_op, {user_id: data_train[:, 0], item_id: data_train[:, 1], real_rating: data_train[:, 2]})
-            rmse = sess.run(rmse, {user_id: data_test[:, 0], item_id: data_test[:, 1], real_rating: data[:, 2]})
-            print('mf train step %d, rmse %.4f'%(i, rmse))
+            np.random.shuffle(data_test)
+            sess.run(train_op, {user_id: data_train[:, 0].astype(int), item_id: data_train[:, 1].astype(int), real_rating: data_train[:, 2]})
+            error = sess.run(rmse, {user_id: data_test[:, 0].astype(int), item_id: data_test[:, 1].astype(int), real_rating: data_test[:, 2]})
+            print('mf train step %d, rmse %.4f'%(i, error))
         return np.array(sess.run(item_embedding))   

@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.sparse import coo_matrix
 from runtime import *
 from rnn import *
+from tqdm import tqdm
 
 class Env():
     def __init__(self, config, usage):
@@ -57,25 +58,28 @@ class Env():
         return user_count, item_count
 
     def construct_predictor(self):
+        print("Begins constructing predictor.")
         self.pred_dict = {}
-        for n in range(len(self.ratings)):
-            a = self.item_embeddings[self.ratings[n][1]]
+        for n in tqdm(range(len(self.ratings))):
+            a = self.item_embeddings[int(self.ratings[n][1])]
             hist = []
             m = n - 1
-            while self.ratings[m][0] == self.ratings[n][0] and n - m <= self.seq_len:
-                hist.append(self.ratings[m][1])
+            while int(self.ratings[m][0]) == int(self.ratings[n][0]) and n - m <= self.seq_len:
+                hist.append(int(self.ratings[m][1]))
+                m -= 1
             hist.reverse()
             if len(hist) != 0:
                 s = self.rnn.get_state(hist)
             else:
                 s = np.zeros([self.state_dim])
             r = self.ratings[n][2]
-            if r not in pred_dict.keys():
-                pred_dict[r] = [s/norm(s), a/norm(a), 1]
+            if r not in self.pred_dict.keys():
+                self.pred_dict[r] = [s/norm(s), a/norm(a), 1]
             else:
-                pred_dict[r][0] += s/norm(s)
-                pred_dict[r][1] += a/norm(a)
-                pred_dict[r][2] += 1
+                self.pred_dict[r][0] += s/norm(s)
+                self.pred_dict[r][1] += a/norm(a)
+                self.pred_dict[r][2] += 1
+        print("Finished predictor construction.")
             
     def get_reward(self, s, a):
         weight = []
