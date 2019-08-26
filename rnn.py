@@ -108,4 +108,3 @@ class Rnn():
         h_c = self.sess.run(self.cur_rnn_states[len(items) - 1], feed_dict)
         state = h_c[0]
         return np.reshape(state, [-1])
-        
