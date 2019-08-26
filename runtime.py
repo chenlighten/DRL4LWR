@@ -9,6 +9,7 @@ def mf_embedding(ratings, user_num, item_num, config):
     np.random.shuffle(ratings)
     emb_train_ratio = float(config['EMB']['EMB_TRAIN_RATIO'])
     emb_learning_rate = float(config['EMB']['LEARNING_RATE'])
+    max_stop_flag = int(config['EMB']['MAX_STOP_FLAG'])
     train_num = int(emb_train_ratio*len(ratings))
     data_train = ratings[:train_num]
     data_test = ratings[train_num:]
@@ -40,10 +41,17 @@ def mf_embedding(ratings, user_num, item_num, config):
     max_step = int(config['EMB']['EMB_TRAIN_STEP'])
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
+        pre_rmse_test = 1e10
+        stop_count = 0
         for i in range(max_step):
             np.random.shuffle(data_train)
-            # np.random.shuffle(data_test)
-            sess.run(train_op, {user_id: data_train[:, 0].astype(int), item_id: data_train[:, 1].astype(int), real_rating: data_train[:, 2]})
-            error = sess.run(rmse, {user_id: data_test[:, 0].astype(int), item_id: data_test[:, 1].astype(int), real_rating: data_test[:, 2]})
-            print('mf train step %d, rmse %.4f'%(i, error))
+            _, rmse_train = sess.run([train_op, rmse], {user_id: data_train[:, 0].astype(int), item_id: data_train[:, 1].astype(int), real_rating: data_train[:, 2]})
+            rmse_test = sess.run(rmse, {user_id: data_test[:, 0].astype(int), item_id: data_test[:, 1].astype(int), real_rating: data_test[:, 2]})
+
+            if pre_rmse_test < rmse_test:
+                stop_count += 1
+            pre_rmse_test = rmse_test
+            print('mf train step: %d, train rmse: %.4f, test rmse: %.4f'%(i, rmse_train, rmse_test))
+            if stop_count > max_stop_flag:
+                break
         return np.array(sess.run(item_embedding))   

@@ -4,8 +4,9 @@ import random
 
 class Rnn():
     def __init__(self, train_data, item_embedding, config):
-        self.output_dim = int(config['RNN']['OUTPUT_DIM'])
         self.input_dim = int(config['EMB']['EMB_SIZE'])
+        # self.output_dim = int(config['RNN']['OUTPUT_DIM'])
+        self.output_dim = self.input_dim
         self.batch_size = int(config['RNN']['BATCH_SIZE'])
         self.unit_num = int(config['ENV']['SEQ_LEN'])
         self.l2_factor = float(config['RNN']['L2_FACTOR'])

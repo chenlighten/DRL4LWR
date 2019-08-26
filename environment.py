@@ -27,7 +27,8 @@ class Env():
             raise RuntimeError('No such usage as %s'%usage)
 
         self.action_dim = int(config['EMB']['EMB_SIZE'])
-        self.state_dim = int(config['RNN']['OUTPUT_DIM'])
+        # self.state_dim = int(config['RNN']['OUTPUT_DIM'])
+        self.state_dim = self.action_dim
 
         self.r_matrix = coo_matrix((self.ratings[:, 2], (self.ratings[:, 0].astype(int), self.ratings[:, 1].astype(int)))).toarray()
         self.t_matrix = coo_matrix((self.ratings[:, 3], (self.ratings[:, 0].astype(int), self.ratings[:, 1].astype(int)))).toarray()
