@@ -4,6 +4,7 @@ from scipy.sparse import coo_matrix
 from runtime import *
 from rnn import *
 from tqdm import tqdm
+import pickle
 
 class Env():
     def __init__(self, config, usage):
@@ -36,9 +37,22 @@ class Env():
         self.alpha = float(config['ENV']['ALPHA'])
         self.seq_len = int(config['ENV']['SEQ_LEN'])
 
-        self.item_embeddings = mf_embedding(self.ratings, self.user_num, self.item_num, config)
+        if config['ENV']['LOAD_EMB'] == 'F':
+            self.item_embeddings = mf_embedding(self.ratings, self.user_num, self.item_num, config)
+            np.savetxt('./runtime_data/item_embeddings.txt', self.item_embeddings)
+        else:
+            self.item_embeddings = np.loadtxt('./runtime_data/item_embeddings.txt')
+
         self.rnn = Rnn(self.ratings, self.item_embeddings, config)
-        self.construct_predictor()
+
+        if config['ENV']['LOAD_PRED'] == 'F':
+            self.construct_predictor()
+            with open('./runtime_data/pred_dict', 'wb') as fr:
+                pickle.dump(self.pred_dict, fr, True)
+        else:
+            with open('./runtime_data/pred_dict', 'rb') as fr:
+                self.pred_dict = pickle.load(fr)
+            
 
     def reID(self):
         user2ID = {}
@@ -74,24 +88,34 @@ class Env():
             else:
                 s = np.zeros([self.state_dim])
             r = self.ratings[n][2]
+
+            norm_s, norm_a = norm(s), norm(a)
+            if norm_s == 0: norm_s = 1
+            if norm_a == 0: norm_a = 1
+
             if r not in self.pred_dict.keys():
-                self.pred_dict[r] = [s/norm(s), a/norm(a), 1]
+                self.pred_dict[r] = [s/norm_s, a/norm_a, 1]
             else:
-                self.pred_dict[r][0] += s/norm(s)
-                self.pred_dict[r][1] += a/norm(a)
+                self.pred_dict[r][0] += s/norm_s
+                self.pred_dict[r][1] += a/norm_a
                 self.pred_dict[r][2] += 1
         print("Finished predictor construction.")
             
     def get_reward(self, s, a):
+        s = self.rnn.get_state(s)
+        a = self.item_embeddings[a]
         weight = []
-        for i in range(20):
+        for i in range(10):
             r = 0.5 + i*0.5
-            weight.append(self.pred_dict[r][2]*(self.alpha*(np.dot(s/norm(s), self.pred_dict[r][0]) + \
-                (1 - self.alpha)*(np.dot(a/norm(a), self.pred_dict[r][1])))))
+            norm_s, norm_a = norm(s), norm(a)
+            if norm_s == 0: norm_s = 1
+            if norm_a == 0: norm_a = 1
+            weight.append(self.pred_dict[r][2]*(self.alpha*(np.dot(s/norm_s, self.pred_dict[r][0]) + \
+                (1 - self.alpha)*(np.dot(a/norm_a, self.pred_dict[r][1])))))
         weight = np.array(weight)
-        weight_sum = np.sum(weight)
-        probs = weight/weight_sum
-        return np.random.choice([0.5 + 0.5*i for i in range(20)], probs)
+        weight = weight/np.sum(weight)
+        probs = np.exp(weight) / np.sum(np.exp(weight))
+        return np.random.choice([0.5 + 0.5*i for i in range(10)], p=probs)
 
 
         

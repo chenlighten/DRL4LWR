@@ -16,13 +16,21 @@ class Rnn():
         self.max_item_num = item_embedding.shape[0]
 
         self.make_graph()
-
-        self.sess = tf.Session()
-        self.sess.run(tf.global_variables_initializer())
-        self.train()
-
+        
+        if config['RNN']['LOAD_DATA'] == 'F':
+            self.sess = tf.Session()
+            self.sess.run(tf.global_variables_initializer())
+            self.train()
+            saver = tf.train.Saver()
+            saver.save(self.sess, './runtime_data/Model/model.ckpt')
+        else:
+            self.sess = tf.Session()
+            saver = tf.train.Saver()
+            saver.restore(self.sess, './runtime_data/Model/model.ckpt')
 
     def make_graph(self):
+        tf.reset_default_graph()
+
         self.action_input = [tf.placeholder(tf.float32, [None, self.input_dim])
             for i in range(self.unit_num)]
         # self.rnn_state = tf.placeholder(tf.float32, [2, self.batch_size, self.output_dim])

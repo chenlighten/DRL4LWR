@@ -54,4 +54,5 @@ def mf_embedding(ratings, user_num, item_num, config):
             print('mf train step: %d, train rmse: %.4f, test rmse: %.4f'%(i, rmse_train, rmse_test))
             if stop_count > max_stop_flag:
                 break
-        return np.array(sess.run(item_embedding))   
+        ret =  np.array(sess.run(item_embedding))
+        return ret
