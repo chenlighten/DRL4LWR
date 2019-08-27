@@ -96,12 +96,13 @@ class DDPG():
         self.sess.run(self.target_update)
 
 class Memory():
-    def __init__(self):
+    def __init__(self, config):
         self.memory = []
+        self.memory_size = int(config['DDPG']['MEMORY_SIZE'])
         self.len = 0
     
     def add(self, s, a, r, s_):
-        if self.len >= MEMORY_SIZE:
+        if self.len >= self.memory_size:
             self.memory.pop(0)
             self.len -= 1
         self.memory.append((s, a, r, s_))

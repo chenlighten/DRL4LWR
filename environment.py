@@ -102,8 +102,6 @@ class Env():
         print("Finished predictor construction.")
             
     def get_reward(self, s, a):
-        s = self.rnn.get_state(s)
-        a = self.item_embeddings[a]
         weight = []
         for i in range(10):
             r = 0.5 + i*0.5
@@ -117,5 +115,13 @@ class Env():
         probs = np.exp(weight) / np.sum(np.exp(weight))
         return np.random.choice([0.5 + 0.5*i for i in range(10)], p=probs)
 
+    def id2vector_item(self, id):
+        return self.item_embeddings[id]
 
+    def vector2id_item(self, vec):
+        dis = np.sum((self.item_embeddings - vec)**2, -1)
+        return np.argsort(dis)[0]
+
+    def get_rnn(self):
+        return self.rnn
         

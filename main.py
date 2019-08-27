@@ -1,14 +1,17 @@
 from configparser import ConfigParser
-from environment import Env
-import numpy as np
+from recommender import *
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
-config = ConfigParser()
-config.read('config')
+if __name__ == '__main__':
 
-env = Env(config, usage='train')
-for _ in range(100):
-    s = np.random.randint(0, 9722, 10)
-    a = np.random.randint(0, 9222)
-    print(env.get_reward(s, a))
+    config = ConfigParser()
+    config.read('config')
+
+    rec = Recommender(config)
+    rec.run()
+
+# for _ in range(100):
+#     s = np.random.randint(0, 9722, 10)
+#     a = np.random.randint(0, 9222)
+#     print(env.get_reward(s, a))
