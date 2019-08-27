@@ -14,7 +14,7 @@ class DDPG():
         self.critic_layers = [int(h) for h in config['DDPG']['CRITIC_LAYERS'].split(',')]
         self.a_upper = float(config['DDPG']['ACTION_UPPER'])
         self.a_lower = float(config['DDPG']['ACTION_LOWER'])
-        self.exp_decay = float(config['DDPG']['EXPLORARION_DECAY'])
+        self.exp_decay = float(config['DDPG']['EXPLORATION_DECAY'])
 
         self.s = tf.placeholder(tf.float32, [None, self.state_dim])
         self.s_ = tf.placeholder(tf.float32, [None, self.state_dim])

@@ -108,6 +108,8 @@ class Rnn():
             print("Rnn pretraining step %d, loss %.4f"%(step, loss))
     
     def get_state(self, items):
+        if len(items) == 0:
+            return np.zeros([self.output_dim])
         if len(items) > self.unit_num:
             raise RuntimeError("Items more than rnn units.")
         embedded_items = [np.reshape(self.item_embedding[i], [1, self.input_dim]) for i in items]
