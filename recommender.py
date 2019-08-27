@@ -2,6 +2,7 @@ from environment import *
 from ddpg import *
 from rnn import *
 import numpy as np
+import tensorflow as tf
 
 class Recommender():
     def __init__(self, config):
@@ -14,6 +15,10 @@ class Recommender():
         self.rnn = self.env.get_rnn()
         self.ddpg = DDPG(self.rnn, config)
         self.memory = Memory(config)
+
+        if config['SHOW']['TENSOR_BOARD'] == 'T':
+            writer = tf.summary.FileWriter('runtime_data/tf_logs', tf.get_default_graph())
+            writer.close()
 
     def run(self):
         self.rewards = []
