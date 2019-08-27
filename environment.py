@@ -124,4 +124,3 @@ class Env():
 
     def get_rnn(self):
         return self.rnn
-        
