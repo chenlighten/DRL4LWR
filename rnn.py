@@ -30,14 +30,12 @@ class Rnn():
 
     def make_graph(self):
         tf.reset_default_graph()
-
         self.action_input = [tf.placeholder(tf.float32, [None, self.input_dim])
             for i in range(self.unit_num)]
         # self.rnn_state = tf.placeholder(tf.float32, [2, self.batch_size, self.output_dim])
         
         self.initial_state = tf.placeholder(tf.float32, [2, None, self.output_dim])
-        self.make_unit = self.create_sru()
-
+        self.make_unit = self.create_sru()      
         self.cur_rnn_states = []
         h_c = self.initial_state
         for i in range(self.unit_num):

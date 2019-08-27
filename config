@@ -2,7 +2,7 @@
 RATING_FILE = ratings.csv
 ALPHA = 0.5
 SEQ_LEN = 10
-LOAD_EMB = T
+LOAD_EMB = F
 LOAD_PRED = F
 
 [EMB]
