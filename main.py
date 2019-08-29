@@ -10,6 +10,8 @@ if __name__ == '__main__':
 
     rec = Recommender(config)
     rec.run()
+    if config['SHOW']['PLOT'] == 'T':
+        rec.show()
 
 # for _ in range(100):
 #     s = np.random.randint(0, 9722, 10)
