@@ -3,6 +3,7 @@ from ddpg import *
 from rnn import *
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 class Recommender():
     def __init__(self, config):
@@ -52,3 +53,9 @@ class Recommender():
             self.avg_rewards.append(reward/self.step_per_episode)
             print('episode: %d, reward: %.1f, average reward: %.4f' \
                 %(eps, reward, reward/self.step_per_episode))
+
+    def show(self):
+        plt.plot(self.avg_rewards)
+        plt.xlabel('episodes')
+        plt.ylabel('average reward')
+        plt.show()
