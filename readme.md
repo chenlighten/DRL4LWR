@@ -1,4 +1,4 @@
-Trying to re-implement the paper *Deep reinforcement learning for page-wise recommendations*. Not finished yet.
+Trying to re-implement the paper *Deep reinforcement learning for page-wise recommendations*. 
 
 Simulator in this version does not specify user identity.
 
