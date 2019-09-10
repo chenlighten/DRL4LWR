@@ -1,7 +1,13 @@
 Trying to re-implement the paper *Deep reinforcement learning for page-wise recommendations*. 
 
-Simulator in this version does not specify user identity.
+Not completely finished yet.
 
-Rnn just processes embedded item.
+Add an RNN model to extract sequential features better.
 
-Rnn will not be updated together with ddpg.
+In this version
+
+- Simulator does not specify user identity.
+
+- Rnn just processes embedded item.
+
+- Rnn will not be updated together with ddpg.
